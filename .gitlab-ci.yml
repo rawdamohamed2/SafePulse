@@ -1,0 +1,47 @@
+stages:
+  - docker
+  - deploy
+  - production_test
+
+variables:
+  IMAGE_NAME: "ahmeddwieb/elwasya-frontend"
+  IMAGE_VERSION: "$CI_PIPELINE_IID"
+  AWS_REGION: "eu-west-1"
+
+
+docker-build:
+  stage: docker
+  image: docker:24
+
+  services:
+    - docker:dind
+
+  script:
+    - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+    - docker build -t $IMAGE_NAME:$APP_VERSION .
+    - docker push $IMAGE_NAME:$APP_VERSION
+    - docker tag "$IMAGE_NAME:$APP_VERSION" "$IMAGE_NAME:latest"
+    - docker push "$IMAGE_NAME:latest"
+
+
+deploy:
+  stage: deploy
+  image:
+    name: amazon/aws-cli:latest
+    entrypoint: [""]
+
+  script:
+    - |
+      aws autoscaling describe-auto-scaling-groups \
+        --auto-scaling-group-names wasaya-asg \
+        --query 'AutoScalingGroups[0].Instances[].InstanceId' \
+        --output text > instance_ids.txt
+
+    - cat instance_ids.txt
+
+    - |
+      aws ssm send-command \
+        --instance-ids $(cat instance_ids.txt) \
+        --document-name "AWS-RunShellScript" \
+        --parameters '{"commands":["cd /opt/wasaya", "docker compose pull backend", "docker compose up -d backend"]}' \
+        --region "$AWS_REGION"

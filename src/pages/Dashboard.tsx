@@ -22,8 +22,8 @@ export function Dashboard() {
   }
   const contact = dashboard.emergency_contact;
 
-  const initials = contact.name
-    .split(" ")
+  const initials = contact?.name
+    ?.split(" ")
     .map((word) => word[0])
     .join("")
     .slice(0, 2)
@@ -68,9 +68,9 @@ export function Dashboard() {
               {initials}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-slate-900">{contact.name}</p>
+              <p className="text-sm font-bold text-slate-900">{contact?.name}</p>
               <p className="text-xs text-slate-500 font-medium">
-                {contact.email}
+                {contact?.email}
               </p>
             </div>
             <div className="text-right">
