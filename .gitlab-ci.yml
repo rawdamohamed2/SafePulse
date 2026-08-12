@@ -4,7 +4,7 @@ stages:
   - production_test
 
 variables:
-  IMAGE_NAME: $DOCKER_USERNAME/elwasya
+  IMAGE_NAME: $DOCKER_USERNAME/elwasya-frontend
   APP_VERSION: $CI_PIPELINE_IID
   AWS_REGION: "eu-west-1"
 
