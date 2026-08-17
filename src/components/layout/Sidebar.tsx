@@ -16,7 +16,12 @@ import { toast } from "sonner";
 import axios from "axios";
 import { Button } from "@/components/ui/Button.tsx";
 
-export function Sidebar() {
+interface SidebarProps {
+  className?: string;
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ className, onNavigate }: SidebarProps) {
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -28,15 +33,11 @@ export function Sidebar() {
     { name: "Contacts", href: "/contacts", icon: User },
     { name: "Schedule", href: "/schedule", icon: History },
   ];
+
   const onLogout = async () => {
     try {
-      const response = await mutateAsync();
-
-      toast.success("You logged out successfully.", {
-        position: "top-center",
-      });
-
-      console.log(response);
+      await mutateAsync();
+      toast.success("You logged out successfully.", { position: "top-center" });
       logout();
       navigate("/login");
     } catch (error) {
@@ -45,21 +46,25 @@ export function Sidebar() {
           position: "top-center",
         });
       } else {
-        toast.error("Something went wrong", {
-          position: "top-center",
-        });
+        toast.error("Something went wrong", { position: "top-center" });
       }
     }
   };
+
   return (
-    <div className="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 h-screen sticky top-0">
+    <div
+      className={cn(
+        "flex-col w-64 bg-white border-r border-slate-200 h-screen sticky top-0",
+        className,
+      )}
+    >
       <div className="p-6 mb-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2" onClick={onNavigate}>
           <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
             <HeartPulse className="h-5 w-5 text-white" />
           </div>
           <span className="font-bold text-xl tracking-tight text-slate-900">
-            SafePulse
+            Wasaya
           </span>
         </Link>
       </div>
@@ -71,6 +76,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 to={item.href}
+                onClick={onNavigate}
                 className={cn(
                   "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-colors",
                   isActive
@@ -96,8 +102,9 @@ export function Sidebar() {
         <div className="p-4 mt-auto border-t border-slate-200">
           <Link
             to="/settings"
+            onClick={onNavigate}
             className={cn(
-              "group flex items-center justify-center px-3 py-2.5  text-sm font-medium rounded-xl transition-colors",
+              "group flex items-center justify-center px-3 py-2.5 text-sm font-medium rounded-xl transition-colors",
               location.pathname === "/settings"
                 ? "bg-secondary text-primary-700"
                 : "text-background bg-primary hover:bg-primary",
@@ -105,10 +112,10 @@ export function Sidebar() {
           >
             <Settings
               className={cn(
-                "mr-3 h-5 w-5 flex-shrink-0 ",
+                "mr-3 h-5 w-5 flex-shrink-0",
                 location.pathname === "/settings"
                   ? "text-primary-700"
-                  : "text-backgroun",
+                  : "text-background",
               )}
             />
             Settings
@@ -116,10 +123,10 @@ export function Sidebar() {
 
           <Button
             onClick={onLogout}
-            className="group flex items-center justify-center px-3 py-5 bg-sidebar-foreground  w-full text-sm font-medium rounded-xl transition-colors text-background hover:bg-sidebar-foreground/90 mt-1"
+            className="group flex items-center justify-center px-3 py-5 bg-sidebar-foreground w-full text-sm font-medium rounded-xl transition-colors text-background hover:bg-sidebar-foreground/90 mt-1"
           >
             {isPending ? (
-              <LoaderCircle size={30} className={`animate-spin`} />
+              <LoaderCircle size={30} className="animate-spin" />
             ) : (
               <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-background" />
             )}

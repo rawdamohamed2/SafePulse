@@ -3,25 +3,30 @@ import { Check, CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/Button.tsx";
 
 interface CheckinTimerProps {
-  nextCheckin: string;
+  checkinTime: string;
+  intervalHours: number;
   status: string;
   onSafe?: () => void;
   onNeedHelp?: () => void;
 }
 
-const getRemainingTime = (nextCheckin: string) => {
+const getNextCheckin = (checkinTime: string, intervalHours: number) => {
   const now = new Date();
+  const [hours, minutes] = checkinTime.split(":").map(Number);
 
-  const [hours, minutes] = nextCheckin.split(":").map(Number);
+  const anchor = new Date(now);
+  anchor.setHours(hours, minutes, 0, 0);
 
-  const target = new Date(now);
-
-  target.setHours(hours, minutes, 0, 0);
-
-  if (target <= now) {
-    target.setDate(target.getDate() + 1);
+  while (anchor <= now) {
+    anchor.setHours(anchor.getHours() + intervalHours);
   }
 
+  return anchor;
+};
+
+const getRemainingTime = (checkinTime: string, intervalHours: number) => {
+  const now = new Date();
+  const target = getNextCheckin(checkinTime, intervalHours);
   return target.getTime() - now.getTime();
 };
 
@@ -39,26 +44,25 @@ const formatTime = (milliseconds: number) => {
 };
 
 const CheckinTimer = ({
-  nextCheckin,
+  checkinTime,
+  intervalHours,
   status,
   onSafe,
   onNeedHelp,
 }: CheckinTimerProps) => {
   const [remaining, setRemaining] = useState(() =>
-    getRemainingTime(nextCheckin),
+    getRemainingTime(checkinTime, intervalHours),
   );
 
   useEffect(() => {
     const updateTimer = () => {
-      setRemaining(getRemainingTime(nextCheckin));
+      setRemaining(getRemainingTime(checkinTime, intervalHours));
     };
 
     updateTimer();
-
     const interval = setInterval(updateTimer, 1000);
-
     return () => clearInterval(interval);
-  }, [nextCheckin]);
+  }, [checkinTime, intervalHours]);
 
   const isActive = status.toLowerCase() === "active";
   return (

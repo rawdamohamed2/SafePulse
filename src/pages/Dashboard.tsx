@@ -4,30 +4,44 @@ import Loading from "@/components/Loading.tsx";
 import ErrorCard from "@/components/ErrorCard.tsx";
 import CheckinTimer from "@/components/dashboard/CheckinTimer.tsx";
 import { toast } from "sonner";
+import { useSettings } from "@/hooks/useSettings.ts";
 
 export function Dashboard() {
   const { data: dashboard = [], isLoading, isError, error } = useDashboard();
-
-  if (isLoading) {
+  const {
+    data: settings,
+    isLoading: isPending,
+    isError: isSettingsError,
+    error: settingsError,
+  } = useSettings();
+  if (isLoading || isPending) {
     return <Loading />;
   }
-  if (isError) {
+  if (isError || isSettingsError) {
     return (
       <ErrorCard
         message={
-          error ? error.message : "Something went wrong while loading the data."
+          error
+            ? error.message
+            : settingsError
+              ? settingsError.message
+              : "Something went wrong while loading the data."
         }
       />
     );
   }
   const contact = dashboard.emergency_contact;
 
-  const initials = contact.name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  console.log(settings);
+
+  const initials = contact?.name
+    ? contact?.name
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "NN";
 
   const handleSafe = async () => {
     toast.warning("Still under working", {
@@ -39,12 +53,12 @@ export function Dashboard() {
       position: "top-center",
     });
   };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-7 flex flex-col gap-8">
         <CheckinTimer
-          nextCheckin={dashboard.next_checkin}
+          checkinTime={settings.checkin_time}
+          intervalHours={settings.check_interval_hours}
           status={dashboard.status}
           onSafe={handleSafe}
           onNeedHelp={handleHelp}
@@ -63,22 +77,30 @@ export function Dashboard() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
-              {initials}
+          {contact ? (
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+                {initials}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-slate-900">
+                  {contact.name}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">
+                  {contact.email}
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-[10px] font-bold rounded-md uppercase">
+                  High Priority
+                </span>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-slate-900">{contact.name}</p>
-              <p className="text-xs text-slate-500 font-medium">
-                {contact.email}
-              </p>
+          ) : (
+            <div className="flex items-center justify-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              No Contacts Found
             </div>
-            <div className="text-right">
-              <span className="inline-block px-2 py-1 bg-primary-100 text-primary-700 text-[10px] font-bold rounded-md uppercase">
-                High Priority
-              </span>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between px-2 pt-4">

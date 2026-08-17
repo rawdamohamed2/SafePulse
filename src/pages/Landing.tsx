@@ -222,11 +222,11 @@ export function Landing() {
           <div className="flex items-center justify-center gap-2 mb-6">
             <HeartPulse className="h-6 w-6 text-primary-500" />
             <span className="font-semibold text-xl text-white tracking-tight">
-              SafePulse
+              Wasaya
             </span>
           </div>
           <p className="mb-6">
-            &copy; {new Date().getFullYear()} SafePulse. All rights reserved.
+            &copy; {new Date().getFullYear()} Wasaya. All rights reserved.
           </p>
           <div className="flex justify-center gap-6">
             <a href="#" className="hover:text-white transition-colors">

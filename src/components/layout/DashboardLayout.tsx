@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
-import { HeartPulse, Menu, X } from "lucide-react";
+import { HeartPulse, Menu } from "lucide-react";
 
 import { Button } from "../ui/Button";
 import { useAuth } from "@/store/auth.store.ts";
 
 export function DashboardLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const { user } = useAuth();
 
   const initials = user.full_name
@@ -17,43 +16,25 @@ export function DashboardLayout() {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
   return (
     <div className="min-h-dvh bg-slate-50 flex">
-      <Sidebar />
+      {/* Sidebar الديسكتوب — بيظهر من md لفوق بس */}
+      <Sidebar className="hidden md:flex" />
 
+      {/* Drawer الموبايل */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
             className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
             onClick={() => setMobileMenuOpen(false)}
           ></div>
-          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col">
-            <div className="flex items-center justify-between h-16 px-4 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <HeartPulse className="h-6 w-6 text-primary-600" />
-                <span className="font-semibold text-lg text-slate-900 tracking-tight">
-                  SafePulse
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <div
-              className="flex-1 overflow-y-auto"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <div className="p-4 flex flex-col h-full">
-                <p className="text-sm text-slate-500 mb-4">
-                  Navigation is available on desktop for this demo, or rotate
-                  device.
-                </p>
-              </div>
-            </div>
+
+          <div className="fixed inset-y-0 left-0 w-64 shadow-xl">
+            <Sidebar
+              className="flex h-full"
+              onNavigate={() => setMobileMenuOpen(false)}
+            />
           </div>
         </div>
       )}
@@ -63,7 +44,7 @@ export function DashboardLayout() {
           <div className="flex items-center gap-2">
             <HeartPulse className="h-6 w-6 text-primary-600" />
             <span className="font-semibold text-lg text-slate-900 tracking-tight">
-              SafePulse
+              Wasaya
             </span>
           </div>
           <Button
@@ -71,7 +52,7 @@ export function DashboardLayout() {
             size="icon"
             onClick={() => setMobileMenuOpen(true)}
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="size-5" />
           </Button>
         </header>
 

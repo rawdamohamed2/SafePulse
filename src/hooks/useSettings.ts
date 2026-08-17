@@ -16,6 +16,9 @@ export const useUpdateSettings = () => {
       queryClient.invalidateQueries({
         queryKey: ["settings"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard"],
+      });
     },
   });
 };
